@@ -482,7 +482,7 @@ Estrutura futura:
 ```txt
 workflows/
 ├── deploy-homolog.yml
-└── deploy-prod.yml
+└── deploy-production.yml
 ```
 
 ---
