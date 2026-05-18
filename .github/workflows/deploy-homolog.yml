@@ -1,0 +1,90 @@
+name: "Deploy Front Homolog"
+
+on:
+  push:
+    branches:
+      - develop
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    environment: homolog
+
+    steps:
+      - name: "Checkout do código"
+        uses: actions/checkout@v4
+
+      - name: "Exportar variáveis do ambiente"
+        run: |
+          echo "${{ vars.VARIABLES_FILE }}" >> $GITHUB_ENV
+
+      - name: "Configurar Node.js"
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: "Adicionar VPS ao known_hosts"
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
+
+      - name: "Criar arquivo .env"
+        run: |
+          echo "${{ vars.ENV_FILE }}" > .env
+
+      - name: "Instalar dependências"
+        run: npm ci
+
+      - name: "Build aplicação"
+        run: npm run build
+
+      - name: "Deploy Front Homolog"
+        run: |
+          set -e
+
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > deploy_key
+          chmod 600 deploy_key
+
+          ssh -i deploy_key root@${{ secrets.VPS_HOST }} \
+            "mkdir -p $DEPLOY_PATH/dist"
+
+          rsync -az --delete \
+            -e "ssh -i deploy_key" \
+            dist/ root@${{ secrets.VPS_HOST }}:$DEPLOY_PATH/dist/
+
+          rsync -az \
+            -e "ssh -i deploy_key" \
+            $COMPOSE_FILE default.conf \
+            root@${{ secrets.VPS_HOST }}:$DEPLOY_PATH/
+
+          ssh -i deploy_key root@${{ secrets.VPS_HOST }} "
+            set -e &&
+            cd $DEPLOY_PATH &&
+            docker compose -f $COMPOSE_FILE down &&
+            docker compose -f $COMPOSE_FILE up -d &&
+            docker image prune -af
+          "
+
+          rm -f deploy_key
+
+      - name: "Health Check"
+        run: |
+          for i in {1..20}; do
+            STATUS=$(curl -k -L -s -o /dev/null -w "%{http_code}" https://$FRONT_HOST)
+
+            echo "Tentativa $i - Status: $STATUS"
+
+            if [ "$STATUS" = "200" ]; then
+              echo "Aplicação online!"
+              exit 0
+            fi
+
+            sleep 10
+          done
+
+          echo "Health check falhou."
+          exit 1

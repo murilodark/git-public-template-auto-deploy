@@ -1,0 +1,23 @@
+services:
+  nginx:
+    image: nginx:alpine
+    container_name: git-public-front-homolog
+    restart: unless-stopped
+
+    volumes:
+      - ./dist:/usr/share/nginx/html:ro
+      - ./docker/nginx/conf.d/homolog.conf:/etc/nginx/conf.d/default.conf:ro
+
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.git-public-front-homolog.rule=Host(`git-public-front-homolog.olirumcloud.com.br`)
+      - traefik.http.routers.git-public-front-homolog.entrypoints=websecure
+      - traefik.http.routers.git-public-front-homolog.tls.certresolver=letsencrypt
+      - traefik.http.services.git-public-front-homolog.loadbalancer.server.port=80
+
+    networks:
+      - traefik-proxy
+
+networks:
+  traefik-proxy:
+    external: true
