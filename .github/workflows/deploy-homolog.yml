@@ -19,7 +19,7 @@ jobs:
 
       - name: "Exportar variáveis"
         run: |
-          echo "${{ vars.VARIABLES_FILE }}" >> $GITHUB_ENV
+          printf "%s\n" "${{ vars.VARIABLES_FILE }}" | sed 's/\r$//' >> $GITHUB_ENV
 
       - name: "Configurar Node.js"
         uses: actions/setup-node@v4
@@ -34,7 +34,7 @@ jobs:
 
       - name: "Criar arquivo .env"
         run: |
-          echo "${{ vars.ENV_FILE }}" > .env
+          printf "%s\n" "${{ vars.ENV_FILE }}" | sed 's/\r$//' > .env
 
       - name: "Instalar dependências"
         run: npm ci
@@ -49,8 +49,10 @@ jobs:
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > deploy_key
           chmod 600 deploy_key
 
-          ssh -i deploy_key root@${{ secrets.VPS_HOST }} \
-            "mkdir -p $DEPLOY_PATH/dist"
+          ssh -i deploy_key root@${{ secrets.VPS_HOST }} "
+            mkdir -p $DEPLOY_PATH/dist &&
+            mkdir -p $DEPLOY_PATH/docker/nginx/conf.d
+          "
 
           rsync -az --delete \
             -e "ssh -i deploy_key" \
@@ -58,16 +60,19 @@ jobs:
 
           rsync -az \
             -e "ssh -i deploy_key" \
-            docker-compose.homolog.yml docker/nginx/conf.d/homolog.conf \
-            root@${{ secrets.VPS_HOST }}:$DEPLOY_PATH/
+            docker-compose.homolog.yml \
+            root@${{ secrets.VPS_HOST }}:$DEPLOY_PATH/docker-compose.homolog.yml
+
+          rsync -az \
+            -e "ssh -i deploy_key" \
+            docker/nginx/conf.d/homolog.conf \
+            root@${{ secrets.VPS_HOST }}:$DEPLOY_PATH/docker/nginx/conf.d/homolog.conf
 
           ssh -i deploy_key root@${{ secrets.VPS_HOST }} "
             set -e &&
             cd $DEPLOY_PATH &&
-            mkdir -p docker/nginx/conf.d &&
-            mv -f homolog.conf docker/nginx/conf.d/homolog.conf &&
-            docker compose -f $COMPOSE_FILE down &&
-            docker compose -f $COMPOSE_FILE up -d &&
+            docker compose -f docker-compose.homolog.yml down &&
+            docker compose -f docker-compose.homolog.yml up -d &&
             docker image prune -af
           "
 
