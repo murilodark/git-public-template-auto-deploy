@@ -27,7 +27,7 @@ export function Home() {
       setData(null);
       setMessage('');
       setSuccess(false);
-      setError('Não foi possível estabelecer conexão com a API.');
+      setError('Não foi possível estabelecer conexão com a API, tente novamente.');
     } finally {
       setLoading(false);
     }
