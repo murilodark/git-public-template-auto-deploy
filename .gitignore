@@ -1,4 +1,11 @@
-# Logs
+# dependencies
+node_modules
+
+# build
+dist
+dist-ssr
+
+# logs
 logs
 *.log
 npm-debug.log*
@@ -7,16 +14,34 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
+# env
+.env
+.env.local
+.env.*.local
 
-# Editor directories and files
+# editor
 .vscode/*
 !.vscode/extensions.json
+
 .idea
+
+# system
 .DS_Store
+Thumbs.db
+
+# temp
+tmp
+temp
+.cache
+
+# typescript
+*.tsbuildinfo
+
+# docker
+docker/mysql/data
+docker/mysql/logs
+
+# misc
 *.suo
 *.ntvs*
 *.njsproj
