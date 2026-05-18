@@ -1,10 +1,5 @@
-function App() {
-  return (
-    <main>
-      <h1>Git Public Front</h1>
-      <p>Aplicação React publicada com CI/CD.</p>
-    </main>
-  );
-}
+import { Home } from '../modules/site/pages/Home';
 
-export default App;
+export default function App() {
+  return <Home />;
+}
