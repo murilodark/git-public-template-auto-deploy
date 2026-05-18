@@ -15,7 +15,7 @@ pnpm-debug.log*
 lerna-debug.log*
 
 # env
-.env
+.env 
 .env.homolog
 .env.production
 .env.*.local
