@@ -1,668 +1,465 @@
+
 # Git Public Front
 
-Frontend React modular, escalável e reutilizável para projetos com deploy automatizado em VPS utilizando Docker, GitHub Actions, Nginx e Traefik.
-
-Este projeto foi criado para funcionar em conjunto com o backend Laravel:
-
-```txt
-https://github.com/murilodark/git-public-api.git
-```
-
-O objetivo é fornecer uma estrutura frontend moderna, organizada e preparada para múltiplos ambientes, separação modular, crescimento progressivo do sistema e integração simplificada com APIs REST.
+Frontend React modular preparado para integração com APIs Laravel utilizando Docker, Vite e deploy automatizado.
 
 ---
 
-# Objetivo do Projeto
+# Objetivo
 
-Este projeto serve como base frontend para aplicações React que necessitam:
+Este repositório contém exclusivamente a aplicação frontend da arquitetura.
 
-* deploy automatizado;
-* homologação e produção separadas;
-* arquitetura limpa;
-* modularização;
-* fácil manutenção;
-* reutilização em múltiplos projetos;
-* integração com backend Laravel;
-* Docker;
-* Nginx;
-* Traefik;
-* SSL automático;
-* CI/CD com GitHub Actions.
+Responsabilidades:
 
-Inicialmente o projeto possui apenas a estrutura base e uma página principal, porém toda a arquitetura já está preparada para crescimento futuro.
+- frontend React;
+- arquitetura modular;
+- integração com APIs;
+- ambientes separados;
+- build frontend;
+- deploy automatizado;
+- estrutura desacoplada.
+
+A documentação completa da infraestrutura está centralizada no repositório âncora:
+
+```txt
+laravel-vps-multidomain-deploy
+````
 
 ---
 
-# Ambientes
+# Stack Frontend
 
-## Homolog
-
-```txt
-Frontend:
-git-public-front-homolog.olirumcloud.com.br
-
-API:
-git-public-api-homolog.olirumcloud.com.br
-```
+* React
+* TypeScript
+* Vite
+* Docker
+* Docker Compose
+* GitHub Actions
 
 ---
 
-## Production
+# Estrutura do Projeto
 
 ```txt
-Frontend:
-git-public-front-production.olirumcloud.com.br
-
-API:
-git-public-api-production.olirumcloud.com.br
-```
-
----
-
-# Backend Complementar
-
-Este frontend foi pensado para funcionar em conjunto com:
-
-```txt
-https://github.com/murilodark/git-public-api.git
-```
-
-A API possui dois contextos principais:
-
-```txt
-common
-admin
-```
-
-No frontend a arquitetura foi organizada da seguinte forma:
-
-```txt
-API common
-↓
-modules/site
-modules/identity
-
-API admin
-↓
-modules/admin
-```
-
----
-
-# Arquitetura do Projeto
-
-```txt
-src/
-├── app/
-├── config/
-├── core/
-├── modules/
-│   ├── site/
-│   ├── admin/
-│   └── identity/
-├── common/
-├── layouts/
-├── assets/
-└── styles/
-```
-
-A arquitetura foi separada por responsabilidade para evitar acoplamento, duplicação e desorganização.
-
----
-
-# Estrutura Completa do Projeto
-
-```txt
-git-public-front/
-├── .github/
-│   └── workflows/
-│
-├── docker/
-│   └── nginx/
-│       └── conf.d/
-│
-├── docs/
-├── docs-privado/
-├── public/
-│
+.
 ├── src/
-│   ├── app/
-│   ├── assets/
-│   ├── common/
-│   ├── config/
-│   ├── core/
-│   ├── layouts/
-│   ├── modules/
-│   │   ├── admin/
-│   │   ├── identity/
-│   │   └── site/
-│   └── styles/
-│
-├── .env.example
-├── .env.homolog
-├── .env.production
-├── .gitignore
-├── Dockerfile
+├── public/
+├── .github/
+├── docker-compose.local.yml
 ├── docker-compose.homolog.yml
 ├── docker-compose.production.yml
-├── package.json
-├── vite.config.ts
 └── README.md
 ```
 
 ---
 
-# Explicação dos Diretórios
-
-# `src/app`
-
-Responsável pela inicialização da aplicação.
-
-Aqui ficam:
-
-* bootstrap da aplicação;
-* providers globais;
-* router principal;
-* configuração base do React;
-* inicialização do sistema.
-
-Exemplo futuro:
+# Arquitetura Frontend
 
 ```txt
-app/
-├── App.tsx
-├── bootstrap/
-├── providers/
-└── routes/
+src/
+├── app/
+├── assets/
+├── common/
+├── config/
+├── core/
+├── layouts/
+├── modules/
+└── styles/
 ```
 
 ---
 
-# `src/config`
+# Estrutura dos Diretórios
 
-Centraliza configurações da aplicação.
-
-Responsabilidades:
-
-* variáveis de ambiente;
-* URLs da API;
-* configuração dos endpoints;
-* ambiente atual;
-* configurações globais.
-
-Exemplo:
+## App
 
 ```txt
-config/
-├── env/
-└── endpoints/
+src/app
 ```
+
+Responsável por:
+
+* bootstrap;
+* providers;
+* rotas;
+* inicialização da aplicação.
 
 ---
 
-# `src/core`
-
-Infraestrutura técnica da aplicação.
-
-Este diretório NÃO deve conter páginas nem regra visual.
-
-Responsabilidades:
-
-* cliente HTTP;
-* autenticação base;
-* interceptadores;
-* tratamento de erros;
-* armazenamento local;
-* guards de rota;
-* serviços técnicos globais.
-
-Exemplo:
+## Assets
 
 ```txt
-core/
-├── auth/
-├── errors/
-├── guards/
-├── http/
-└── storage/
+src/assets
 ```
 
----
-
-# `src/modules`
-
-Principal diretório de negócio da aplicação.
-
-Cada módulo representa uma área funcional do sistema.
-
-Estrutura:
-
-```txt
-modules/
-├── site/
-├── admin/
-└── identity/
-```
-
----
-
-# `src/modules/site`
-
-Área pública/principal do sistema.
-
-Inicialmente será o módulo principal do projeto.
-
-Responsabilidades futuras:
-
-* página inicial;
-* landing page;
-* páginas institucionais;
-* conteúdo público;
-* fluxo do usuário comum;
-* integração com endpoints common da API.
-
-Estrutura sugerida:
-
-```txt
-site/
-├── pages/
-├── components/
-├── services/
-└── types/
-```
-
----
-
-# `src/modules/admin`
-
-Área administrativa.
-
-Mesmo sem uso inicial, já existe para suportar crescimento futuro.
-
-Responsabilidades futuras:
-
-* dashboard;
-* gestão de usuários;
-* permissões;
-* relatórios;
-* configurações;
-* administração do sistema;
-* endpoints admin da API.
-
-Estrutura sugerida:
-
-```txt
-admin/
-├── pages/
-├── components/
-├── services/
-└── types/
-```
-
----
-
-# `src/modules/identity`
-
-Módulo responsável por identidade do usuário.
-
-Separado para evitar duplicação entre `site` e `admin`.
-
-Responsabilidades futuras:
-
-* login;
-* logout;
-* autenticação;
-* sessão;
-* perfil do usuário;
-* permissões;
-* recuperação de senha.
-
-Estrutura sugerida:
-
-```txt
-identity/
-├── auth/
-├── permissions/
-├── profile/
-└── session/
-```
-
----
-
-# `src/common`
-
-Recursos reutilizáveis da aplicação.
-
-Este diretório NÃO deve conter regra de negócio específica.
-
-Responsabilidades:
-
-* componentes compartilhados;
-* hooks reutilizáveis;
-* helpers;
-* constants;
-* validators;
-* types globais.
-
-Estrutura:
-
-```txt
-common/
-├── components/
-├── constants/
-├── helpers/
-├── hooks/
-├── types/
-└── validators/
-```
-
----
-
-# `src/layouts`
-
-Layouts principais da aplicação.
-
-Responsável pela estrutura visual global das áreas.
-
-Exemplo:
-
-```txt
-layouts/
-├── AdminLayout/
-└── SiteLayout/
-```
-
----
-
-# `src/assets`
-
-Arquivos estáticos.
-
-Responsabilidades:
+Responsável por:
 
 * imagens;
 * ícones;
 * fontes;
-* logos;
-* ilustrações.
+* arquivos estáticos.
 
-Estrutura:
+---
+
+## Common
 
 ```txt
-assets/
-├── fonts/
-├── icons/
-└── images/
+src/common
+```
+
+Responsável por:
+
+* componentes reutilizáveis;
+* hooks;
+* helpers;
+* constantes;
+* validações;
+* tipagens globais.
+
+---
+
+## Config
+
+```txt
+src/config
+```
+
+Responsável por:
+
+* variáveis de ambiente;
+* endpoints;
+* configurações globais.
+
+---
+
+## Core
+
+```txt
+src/core
+```
+
+Responsável por:
+
+* autenticação;
+* HTTP client;
+* guards;
+* storage;
+* tratamento de erros.
+
+---
+
+## Layouts
+
+```txt
+src/layouts
+```
+
+Responsável pelos layouts globais da aplicação.
+
+---
+
+## Modules
+
+```txt
+src/modules
+```
+
+Responsável pela separação modular das features da aplicação.
+
+---
+
+## Styles
+
+```txt
+src/styles
+```
+
+Responsável por:
+
+* temas;
+* variáveis;
+* estilos globais.
+
+---
+
+# Ambientes
+
+## Local
+
+```txt
+docker-compose.local.yml
 ```
 
 ---
 
-# `src/styles`
-
-Centralização dos estilos globais.
-
-Responsabilidades:
-
-* variáveis globais;
-* tema;
-* reset;
-* estilos globais;
-* tokens visuais.
-
-Estrutura:
+## Homologação
 
 ```txt
-styles/
-├── globals/
-├── theme/
-└── variables/
+docker-compose.homolog.yml
+```
+
+Deploy automático pela branch:
+
+```txt
+develop
 ```
 
 ---
 
-# `docs`
-
-Documentação pública do projeto.
-
-Pode conter:
-
-* diagramas;
-* instruções;
-* arquitetura;
-* fluxos;
-* tutoriais.
-
----
-
-# `docs-privado`
-
-Documentação interna e privada.
-
-Pode conter:
-
-* anotações internas;
-* estratégias;
-* observações técnicas;
-* informações sensíveis não públicas.
-
----
-
-# `docker`
-
-Arquivos relacionados à infraestrutura Docker.
-
-Estrutura esperada:
+## Produção
 
 ```txt
-docker/
-└── nginx/
-    └── conf.d/
+docker-compose.production.yml
 ```
 
-Aqui ficarão:
+Deploy automático pela branch:
 
-* configurações Nginx;
-* configurações homolog;
-* configurações production.
+```txt
+main
+```
 
 ---
 
-# `.github/workflows`
-
-Pipelines do GitHub Actions.
-
-Responsabilidades:
-
-* deploy homolog;
-* deploy production;
-* automação CI/CD.
-
-Estrutura futura:
+# Fluxo de Deploy
 
 ```txt
-workflows/
-├── deploy-homolog.yml
-└── deploy-production.yml
+develop -> homologação
+main    -> produção
 ```
 
 ---
 
 # Variáveis de Ambiente
 
-O projeto utiliza múltiplos ambientes:
+Arquivos:
 
 ```txt
-.env.example
+.env.local
 .env.homolog
 .env.production
 ```
 
+Responsáveis por:
+
+* URL da API;
+* URL frontend;
+* ambiente;
+* logs;
+* debug;
+* timeout;
+* configurações globais.
+
 ---
 
-# Exemplo Homolog
+# Subindo Ambiente Local
 
-```env
-VITE_APP_ENV=homolog
-VITE_API_BASE_URL=https://git-public-api-homolog.olirumcloud.com.br
+## Copiar variáveis
+
+```bash
+cp .env.local .env
 ```
 
 ---
 
-# Exemplo Production
+## Subir containers
 
-```env
-VITE_APP_ENV=production
-VITE_API_BASE_URL=https://git-public-api-production.olirumcloud.com.br
+```bash
+docker compose -f docker-compose.local.yml up -d --build
 ```
 
 ---
 
-# Fluxo Git
+## Instalar dependências
 
-Estratégia utilizada:
+```bash
+npm install
+```
+
+---
+
+## Executar aplicação
+
+```bash
+npm run dev
+```
+
+---
+
+# Estrutura Modular
+
+A aplicação utiliza arquitetura modular desacoplada.
+
+Exemplo:
 
 ```txt
-develop → homolog
-main    → production
+src/modules/
+├── admin/
+├── identity/
+└── site/
 ```
 
-Branches recomendadas:
+Cada módulo pode conter:
 
 ```txt
-main
-develop
-feature/*
-hotfix/*
+components/
+pages/
+services/
+types/
 ```
 
 ---
 
-# Deploy Automatizado
+# Comunicação com Backend
 
-Fluxo esperado:
+API oficial:
 
 ```txt
-GitHub
-↓
-GitHub Actions
-↓
-VPS Linux
-↓
-Docker
-↓
-Nginx
-↓
-Traefik
-↓
-SSL automático
+git-public-api
 ```
 
----
-
-# Infraestrutura
-
-Arquitetura de deploy:
+A comunicação é realizada via:
 
 ```txt
-React
-↓
-Vite Build
-↓
-Nginx
-↓
-Docker
-↓
-Traefik
-↓
-HTTPS automático
+src/core/http
 ```
 
----
-
-# Tecnologias
-
-## Frontend
+E os endpoints são centralizados em:
 
 ```txt
-React
-TypeScript
-Vite
-React Router
-Axios
+src/config/endpoints
 ```
 
 ---
 
-## Infraestrutura
+# Estrutura de Deploy
+
+## Homologação
 
 ```txt
-Docker
-Docker Compose
-Nginx
-Traefik
-GitHub Actions
+git-public-front-homolog.olirumcloud.com.br
 ```
 
 ---
 
-# Princípios Arquiteturais
-
-Este projeto foi desenvolvido seguindo:
-
-* modularidade;
-* separação de responsabilidade;
-* baixo acoplamento;
-* reutilização;
-* escalabilidade;
-* facilidade de manutenção;
-* organização;
-* compatibilidade com múltiplos projetos.
-
----
-
-# Organização Conceitual
+## Produção
 
 ```txt
-app      → inicialização
-config   → ambiente e endpoints
-core     → infraestrutura técnica
-modules  → negócio
-common   → reutilização
-layouts  → estrutura visual
-assets   → arquivos estáticos
-styles   → estilos globais
+git-public-front-production.olirumcloud.com.br
 ```
 
 ---
 
-# Primeira Etapa do Projeto
+# Deploy Automático
 
-Inicialmente o sistema terá apenas:
+Os deploys utilizam:
 
-```txt
-modules/site/pages/Home
-```
-
-Essa página será responsável por validar a comunicação com a API correspondente ao ambiente configurado.
-
-Mesmo começando simples, toda a estrutura já está preparada para crescimento futuro.
-
----
-
-# Objetivo Final
-
-O objetivo deste projeto é servir como uma base frontend moderna, organizada e reutilizável para aplicações React profissionais utilizando:
-
-* Laravel;
-* React;
-* Docker;
-* VPS;
 * GitHub Actions;
-* Traefik;
-* CI/CD automatizado.
+* SSH;
+* RSync;
+* Docker Compose.
+
+O pipeline executa:
+
+* sincronização dos arquivos;
+* rebuild dos containers;
+* restart automático;
+* atualização do frontend.
 
 ---
 
-# Licença
+# Docker
 
-Projeto público criado para estudo, padronização e automação de deploy utilizando React, Laravel, Docker e GitHub Actions.
+O frontend é executado via containers Docker.
+
+Responsabilidades:
+
+* build da aplicação;
+* isolamento do ambiente;
+* padronização do deploy;
+* integração com Traefik.
+
+---
+
+# Traefik
+
+A instalação do Traefik NÃO está neste repositório.
+
+Toda a documentação da infraestrutura está centralizada em:
+
+```txt
+laravel-vps-multidomain-deploy
+```
+
+Diretório:
+
+```txt
+infra/traefik
+```
+
+---
+
+# Recursos Implementados
+
+* arquitetura modular;
+* múltiplos ambientes;
+* deploy automatizado;
+* integração com Laravel;
+* Docker;
+* CI/CD;
+* frontend desacoplado;
+* escalabilidade frontend.
+
+---
+
+# Roadmap
+
+* SSR;
+* autenticação avançada;
+* internacionalização;
+* PWA;
+* cache inteligente;
+* otimizações de performance;
+* testes automatizados;
+* observabilidade frontend.
+
+---
+
+# Backend Oficial
+
+```txt
+git-public-api
+```
+
+---
+
+# Repositório Âncora
+
+Documentação completa da infraestrutura:
+
+```txt
+laravel-vps-multidomain-deploy
+```
+
+---
+
+# Topics GitHub
+
+```txt
+react
+vite
+typescript
+frontend
+docker
+docker-compose
+deployment
+github-actions
+ci-cd
+vps
+modular-architecture
+```
+
+---
+
+# Autor
+
+Murilo Dark
