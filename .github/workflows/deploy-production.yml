@@ -3,14 +3,19 @@ name: "Deploy Front Production"
 on:
   push:
     branches:
-      - main
+      - "**"
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   build-and-deploy:
+    if: |
+      vars.PRODUCTION_DEPLOY == 'true' &&
+      github.ref_name == vars.PRODUCTION_BRANCH
+
     runs-on: ubuntu-latest
+
     environment: production
 
     steps:
@@ -49,26 +54,26 @@ jobs:
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > deploy_key
           chmod 600 deploy_key
 
-          ssh -i deploy_key root@${{ secrets.VPS_HOST }} "
+          ssh -i deploy_key ${{ secrets.USERNAME }}@${{ secrets.VPS_HOST }} "
             mkdir -p $DEPLOY_PATH/dist &&
             mkdir -p $DEPLOY_PATH/docker/nginx/conf.d
           "
 
           rsync -az --delete \
             -e "ssh -i deploy_key" \
-            dist/ root@${{ secrets.VPS_HOST }}:$DEPLOY_PATH/dist/
+            dist/ ${{ secrets.USERNAME }}@${{ secrets.VPS_HOST }}:$DEPLOY_PATH/dist/
 
           rsync -az \
             -e "ssh -i deploy_key" \
             docker-compose.production.yml \
-            root@${{ secrets.VPS_HOST }}:$DEPLOY_PATH/docker-compose.production.yml
+            ${{ secrets.USERNAME }}@${{ secrets.VPS_HOST }}:$DEPLOY_PATH/docker-compose.production.yml
 
           rsync -az \
             -e "ssh -i deploy_key" \
             docker/nginx/conf.d/production.conf \
-            root@${{ secrets.VPS_HOST }}:$DEPLOY_PATH/docker/nginx/conf.d/production.conf
+            ${{ secrets.USERNAME }}@${{ secrets.VPS_HOST }}:$DEPLOY_PATH/docker/nginx/conf.d/production.conf
 
-          ssh -i deploy_key root@${{ secrets.VPS_HOST }} "
+          ssh -i deploy_key ${{ secrets.USERNAME }}@${{ secrets.VPS_HOST }} "
             set -e &&
             cd $DEPLOY_PATH &&
             docker compose -f docker-compose.production.yml down &&

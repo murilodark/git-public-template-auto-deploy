@@ -3,7 +3,7 @@ name: "Deploy Front Homolog"
 on:
   push:
     branches:
-      - develop
+      - "**"
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -17,58 +17,82 @@ jobs:
       - name: "Checkout do código"
         uses: actions/checkout@v4
 
-      - name: "Exportar variáveis"
+      - name: "Carregar SECRETS_HOMOLOG"
         run: |
-          printf "%s\n" "${{ vars.VARIABLES_FILE }}" | sed 's/\r$//' >> $GITHUB_ENV
+          printf "%s\n" "${{ secrets.SECRETS_HOMOLOG }}" \
+            | sed 's/\r$//' \
+            | grep -E '^[[:space:]]*[A-Z0-9_]+=' \
+            | sed 's/^[[:space:]]*//' > runtime.env
+
+          grep -v '^SSH_PRIVATE_KEY=' runtime.env >> $GITHUB_ENV
+
+          grep '^VITE_' runtime.env > .env
+
+      - name: "Validar deploy homolog"
+        run: |
+          if [ "$DEPLOY" != "true" ]; then
+            echo "Deploy homolog desativado."
+            exit 0
+          fi
+
+          if [ "${{ github.ref_name }}" != "$BRANCH" ]; then
+            echo "Branch atual '${{ github.ref_name }}' diferente da branch configurada '$BRANCH'."
+            exit 0
+          fi
+
+          echo "SHOULD_DEPLOY=true" >> $GITHUB_ENV
 
       - name: "Configurar Node.js"
+        if: env.SHOULD_DEPLOY == 'true'
         uses: actions/setup-node@v4
         with:
           node-version: "20"
           cache: "npm"
 
       - name: "Adicionar VPS ao known_hosts"
+        if: env.SHOULD_DEPLOY == 'true'
         run: |
           mkdir -p ~/.ssh
-          ssh-keyscan -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
-
-      - name: "Criar arquivo .env"
-        run: |
-          printf "%s\n" "${{ vars.ENV_FILE }}" | sed 's/\r$//' > .env
+          ssh-keyscan -H "$VPS_HOST" >> ~/.ssh/known_hosts
 
       - name: "Instalar dependências"
+        if: env.SHOULD_DEPLOY == 'true'
         run: npm ci
 
       - name: "Build aplicação"
+        if: env.SHOULD_DEPLOY == 'true'
         run: npm run build
 
       - name: "Deploy Front Homolog"
+        if: env.SHOULD_DEPLOY == 'true'
         run: |
           set -e
 
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > deploy_key
+          SSH_PRIVATE_KEY_VALUE=$(grep '^SSH_PRIVATE_KEY=' runtime.env | cut -d '=' -f2-)
+
+          printf "%b\n" "$SSH_PRIVATE_KEY_VALUE" > deploy_key
           chmod 600 deploy_key
 
-          ssh -i deploy_key root@${{ secrets.VPS_HOST }} "
+          ssh -i deploy_key "$USERNAME@$VPS_HOST" "
             mkdir -p $DEPLOY_PATH/dist &&
             mkdir -p $DEPLOY_PATH/docker/nginx/conf.d
           "
 
           rsync -az --delete \
             -e "ssh -i deploy_key" \
-            dist/ root@${{ secrets.VPS_HOST }}:$DEPLOY_PATH/dist/
+            dist/ "$USERNAME@$VPS_HOST:$DEPLOY_PATH/dist/"
 
           rsync -az \
             -e "ssh -i deploy_key" \
             docker-compose.homolog.yml \
-            root@${{ secrets.VPS_HOST }}:$DEPLOY_PATH/docker-compose.homolog.yml
+            "$USERNAME@$VPS_HOST:$DEPLOY_PATH/docker-compose.homolog.yml"
 
           rsync -az \
             -e "ssh -i deploy_key" \
             docker/nginx/conf.d/homolog.conf \
-            root@${{ secrets.VPS_HOST }}:$DEPLOY_PATH/docker/nginx/conf.d/homolog.conf
+            "$USERNAME@$VPS_HOST:$DEPLOY_PATH/docker/nginx/conf.d/homolog.conf"
 
-          ssh -i deploy_key root@${{ secrets.VPS_HOST }} "
+          ssh -i deploy_key "$USERNAME@$VPS_HOST" "
             set -e &&
             cd $DEPLOY_PATH &&
             docker compose -f docker-compose.homolog.yml down &&
@@ -79,9 +103,10 @@ jobs:
           rm -f deploy_key
 
       - name: "Health Check"
+        if: env.SHOULD_DEPLOY == 'true'
         run: |
           for i in {1..20}; do
-            STATUS=$(curl -k -L -s -o /dev/null -w "%{http_code}" https://$FRONT_HOST)
+            STATUS=$(curl -k -L -s -o /dev/null -w "%{http_code}" "$VITE_FRONT_URL")
 
             echo "Tentativa $i - Status: $STATUS"
 
