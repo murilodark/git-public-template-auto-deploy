@@ -1,6 +1,3 @@
-mkdir -p scripts
-
-cat > scripts/generate-github-environments.sh <<'EOF'
 #!/usr/bin/env bash
 set -euo pipefail
 
@@ -81,5 +78,3 @@ set_environment_secret "production" "SECRETS_PRODUCTION" "$SECRETS_PRODUCTION_CO
 set_environment_secret "homolog" "SECRETS_HOMOLOG" "$SECRETS_HOMOLOG_CONTENT"
 
 echo "Environments e secrets sincronizados com sucesso."
-EOF
-

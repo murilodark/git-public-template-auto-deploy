@@ -1,51 +1,76 @@
+# Git Public Template Auto Deploy
 
-# Git Public Front
+Template reutilizável para projetos Frontend modernos utilizando GitHub Actions, Docker, Traefik, VPS Ubuntu e deploy automatizado multiambiente.
 
-Frontend React modular preparado para integração com APIs Laravel utilizando Docker, Vite e deploy automatizado.
+O objetivo deste projeto é permitir que qualquer desenvolvedor consiga iniciar rapidamente uma arquitetura profissional contendo:
+
+* deploy automatizado
+* homolog e production
+* múltiplos domínios
+* SSL automático
+* GitHub Environments
+* GitHub Secrets
+* Docker
+* Traefik
+* CI/CD
+* provisionamento automatizado
+
+Tudo centralizado em um único template reutilizável.
 
 ---
 
 # Objetivo
 
-Este repositório contém exclusivamente a aplicação frontend da arquitetura.
+Este projeto foi criado para eliminar configurações manuais repetitivas em novos projetos Frontend.
 
-Responsabilidades:
-
-- frontend React;
-- arquitetura modular;
-- integração com APIs;
-- ambientes separados;
-- build frontend;
-- deploy automatizado;
-- estrutura desacoplada.
-
-A documentação completa da infraestrutura está centralizada no repositório âncora:
+A ideia é simples:
 
 ```txt
-laravel-vps-multidomain-deploy
-````
+1 arquivo .env.git
++
+1 comando
+=
+Projeto completamente provisionado
+```
+
+O template automatiza:
+
+* criação de repositório GitHub
+* criação de branches
+* proteção de branches
+* criação de environments
+* sincronização de secrets
+* pipelines GitHub Actions
+* deploy automatizado
+* integração VPS
+* configuração multiambiente
 
 ---
 
-# Stack Frontend
+# Stack
 
-* React
-* TypeScript
-* Vite
-* Docker
-* Docker Compose
 * GitHub Actions
+* Docker
+* Traefik
+* Nginx
+* Ubuntu VPS
+* SSL Let's Encrypt
+* Bash Automation
+* CI/CD
+* Infrastructure as Code
 
 ---
 
-# Estrutura do Projeto
+# Estrutura
 
 ```txt
-.
-├── src/
-├── public/
+git-public-template-auto-deploy/
 ├── .github/
-├── docker-compose.local.yml
+│   ├── scripts/
+│   └── workflows/
+├── app/
+├── docker/
+├── .env.git
 ├── docker-compose.homolog.yml
 ├── docker-compose.production.yml
 └── README.md
@@ -53,413 +78,311 @@ laravel-vps-multidomain-deploy
 
 ---
 
-# Arquitetura Frontend
+# Conceito da Arquitetura
+
+O projeto utiliza:
 
 ```txt
-src/
-├── app/
-├── assets/
-├── common/
-├── config/
-├── core/
-├── layouts/
-├── modules/
-└── styles/
+GitHub Environment Provisioning
+```
+
+Toda a infraestrutura operacional é gerenciada através de:
+
+```txt
+.env.git
+```
+
+O arquivo centraliza:
+
+* informações do GitHub
+* branches
+* deploys
+* VPS
+* SSH
+* ambientes
+* variáveis do frontend
+
+---
+
+# Exemplo .env.git
+
+```env
+# =============================================================================
+# GITHUB INFO
+# =============================================================================
+
+INFO_GIT={
+    OWNER="murilodark"
+    REPOSITORY="git-public-front"
+    MESSAGE="Deploying to production environment - $(date)"
+}
+
+# =============================================================================
+# ENVIRONMENT PRODUCTION
+# =============================================================================
+
+SECRETS_PRODUCTION={
+    VPS_HOST=
+    SSH_PRIVATE_KEY=
+    USERNAME=
+    CONTAINER_NAME=
+    DEPLOY=true
+    BRANCH=main
+    VITE_APP_NAME=
+    VITE_APP_ENV=production
+    VITE_API_URL=
+    VITE_FRONT_URL=
+    VITE_ENABLE_DEVTOOLS=false
+    VITE_ENABLE_DEBUG=false
+    VITE_ENABLE_LOGS=false
+    VITE_REQUEST_TIMEOUT=30000
+}
+
+# =============================================================================
+# ENVIRONMENT HOMOLOG
+# =============================================================================
+
+SECRETS_HOMOLOG={
+    VPS_HOST=
+    SSH_PRIVATE_KEY=
+    USERNAME=
+    CONTAINER_NAME=
+    DEPLOY=false
+    BRANCH=develop
+    VITE_APP_NAME=
+    VITE_APP_ENV=homolog
+    VITE_API_URL=
+    VITE_FRONT_URL=
+    VITE_ENABLE_DEVTOOLS=true
+    VITE_ENABLE_DEBUG=true
+    VITE_ENABLE_LOGS=true
+    VITE_REQUEST_TIMEOUT=30000
+}
 ```
 
 ---
 
-# Estrutura dos Diretórios
+# Scripts Automatizados
 
-## App
-
-```txt
-src/app
-```
-
-Responsável por:
-
-* bootstrap;
-* providers;
-* rotas;
-* inicialização da aplicação.
+O projeto possui scripts responsáveis por automatizar todo o bootstrap GitHub.
 
 ---
 
-## Assets
+## init-git-project.sh
+
+Executa automaticamente:
 
 ```txt
-src/assets
-```
-
-Responsável por:
-
-* imagens;
-* ícones;
-* fontes;
-* arquivos estáticos.
-
----
-
-## Common
-
-```txt
-src/common
-```
-
-Responsável por:
-
-* componentes reutilizáveis;
-* hooks;
-* helpers;
-* constantes;
-* validações;
-* tipagens globais.
-
----
-
-## Config
-
-```txt
-src/config
-```
-
-Responsável por:
-
-* variáveis de ambiente;
-* endpoints;
-* configurações globais.
-
----
-
-## Core
-
-```txt
-src/core
-```
-
-Responsável por:
-
-* autenticação;
-* HTTP client;
-* guards;
-* storage;
-* tratamento de erros.
-
----
-
-## Layouts
-
-```txt
-src/layouts
-```
-
-Responsável pelos layouts globais da aplicação.
-
----
-
-## Modules
-
-```txt
-src/modules
-```
-
-Responsável pela separação modular das features da aplicação.
-
----
-
-## Styles
-
-```txt
-src/styles
-```
-
-Responsável por:
-
-* temas;
-* variáveis;
-* estilos globais.
-
----
-
-# Ambientes
-
-## Local
-
-```txt
-docker-compose.local.yml
+- criação do repositório
+- criação de branches
+- proteção de branches
+- criação de environments
+- sincronização de secrets
 ```
 
 ---
 
-## Homologação
+## generate-github-repository.sh
+
+Cria automaticamente o repositório GitHub.
+
+---
+
+## generate-github-branchs.sh
+
+Cria e sincroniza branches automaticamente.
+
+---
+
+## generate-github-branchs-permissions.sh
+
+Configura permissões e proteções das branches.
+
+---
+
+## generate-github-environments.sh
+
+Cria environments e sincroniza os secrets automaticamente.
+
+---
+
+# Fluxo Completo
 
 ```txt
-docker-compose.homolog.yml
-```
-
-Deploy automático pela branch:
-
-```txt
-develop
+.env.git
+    ↓
+Scripts GitHub
+    ↓
+GitHub Repository
+    ↓
+GitHub Branches
+    ↓
+GitHub Permissions
+    ↓
+GitHub Environments
+    ↓
+GitHub Secrets
+    ↓
+GitHub Actions
+    ↓
+Deploy VPS
 ```
 
 ---
 
-## Produção
+# Deploy Automatizado
+
+O projeto suporta:
+
+## homolog
 
 ```txt
-docker-compose.production.yml
-```
-
-Deploy automático pela branch:
-
-```txt
-main
-```
-
----
-
-# Fluxo de Deploy
-
-```txt
-develop -> homologação
-main    -> produção
+Branch configurável
+Deploy opcional
+Container isolado
 ```
 
 ---
 
-# Variáveis de Ambiente
-
-Arquivos:
+## production
 
 ```txt
-.env.local
-.env.homolog
-.env.production
+Branch configurável
+Deploy automatizado
+Container isolado
 ```
-
-Responsáveis por:
-
-* URL da API;
-* URL frontend;
-* ambiente;
-* logs;
-* debug;
-* timeout;
-* configurações globais.
 
 ---
 
-# Subindo Ambiente Local
+# Multi Domínio
 
-## Copiar variáveis
+Compatível com:
+
+* múltiplos projetos
+* múltiplos containers
+* múltiplos domínios
+* múltiplos ambientes
+* múltiplas VPS
+
+Tudo utilizando:
+
+```txt
+Traefik + Docker
+```
+
+---
+
+# SSL Automático
+
+O projeto utiliza:
+
+```txt
+Let's Encrypt
+```
+
+integrado ao:
+
+```txt
+Traefik
+```
+
+Os certificados são gerados automaticamente.
+
+---
+
+# Como Utilizar
+
+## 1. Clone o template
 
 ```bash
-cp .env.local .env
+git clone https://github.com/murilodark/git-public-template-auto-deploy.git
 ```
 
 ---
 
-## Subir containers
+## 2. Configure o .env.git
+
+Edite:
+
+```txt
+.env.git
+```
+
+---
+
+## 3. Login GitHub CLI
 
 ```bash
-docker compose -f docker-compose.local.yml up -d --build
+gh auth login
 ```
 
 ---
 
-## Instalar dependências
+## 4. Execute o bootstrap
 
 ```bash
-npm install
+./.github/scripts/init-git-project.sh
 ```
 
 ---
 
-## Executar aplicação
+# Resultado
 
-```bash
-npm run dev
-```
+O projeto será provisionado automaticamente contendo:
 
----
-
-# Estrutura Modular
-
-A aplicação utiliza arquitetura modular desacoplada.
-
-Exemplo:
-
-```txt
-src/modules/
-├── admin/
-├── identity/
-└── site/
-```
-
-Cada módulo pode conter:
-
-```txt
-components/
-pages/
-services/
-types/
-```
+* repositório GitHub
+* branches
+* environments
+* secrets
+* permissões
+* pipelines
+* deploy automatizado
 
 ---
 
-# Comunicação com Backend
+# Compatibilidade
 
-API oficial:
+Compatível com:
 
-```txt
-git-public-api
-```
-
-A comunicação é realizada via:
-
-```txt
-src/core/http
-```
-
-E os endpoints são centralizados em:
-
-```txt
-src/config/endpoints
-```
+* React
+* Vue
+* Vite
+* SPA
+* Frontends desacoplados
 
 ---
 
-# Estrutura de Deploy
+# Filosofia
 
-## Homologação
-
-```txt
-git-public-front-homolog.olirumcloud.com.br
-```
-
----
-
-## Produção
+Este projeto segue o conceito de:
 
 ```txt
-git-public-front-production.olirumcloud.com.br
+Infrastructure as Code
 ```
 
----
+Toda configuração operacional deve ser:
 
-# Deploy Automático
-
-Os deploys utilizam:
-
-* GitHub Actions;
-* SSH;
-* RSync;
-* Docker Compose.
-
-O pipeline executa:
-
-* sincronização dos arquivos;
-* rebuild dos containers;
-* restart automático;
-* atualização do frontend.
-
----
-
-# Docker
-
-O frontend é executado via containers Docker.
-
-Responsabilidades:
-
-* build da aplicação;
-* isolamento do ambiente;
-* padronização do deploy;
-* integração com Traefik.
-
----
-
-# Traefik
-
-A instalação do Traefik NÃO está neste repositório.
-
-Toda a documentação da infraestrutura está centralizada em:
-
-```txt
-laravel-vps-multidomain-deploy
-```
-
-Diretório:
-
-```txt
-infra/traefik
-```
-
----
-
-# Recursos Implementados
-
-* arquitetura modular;
-* múltiplos ambientes;
-* deploy automatizado;
-* integração com Laravel;
-* Docker;
-* CI/CD;
-* frontend desacoplado;
-* escalabilidade frontend.
+* versionável
+* automatizada
+* reutilizável
+* previsível
 
 ---
 
 # Roadmap
 
-* SSR;
-* autenticação avançada;
-* internacionalização;
-* PWA;
-* cache inteligente;
-* otimizações de performance;
-* testes automatizados;
-* observabilidade frontend.
+* suporte backend Laravel
+* suporte múltiplas VPS
+* suporte Redis
+* suporte workers
+* suporte banco de dados
+* suporte rollback automático
+* suporte blue/green deploy
+* suporte monitoramento
+* suporte observabilidade
 
 ---
 
-# Backend Oficial
+# Licença
 
-```txt
-git-public-api
-```
-
----
-
-# Repositório Âncora
-
-Documentação completa da infraestrutura:
-
-```txt
-laravel-vps-multidomain-deploy
-```
-
----
-
-# Topics GitHub
-
-```txt
-react
-vite
-typescript
-frontend
-docker
-docker-compose
-deployment
-github-actions
-ci-cd
-vps
-modular-architecture
-```
-
----
-
-# Autor
-
-Murilo Dark
+MIT License.

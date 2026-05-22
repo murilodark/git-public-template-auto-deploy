@@ -1,35 +1,26 @@
 # Scripts
 
-Este diretório centraliza scripts responsáveis por automatizar processos de infraestrutura, GitHub, CI/CD, provisionamento de environments e deploys do projeto.
+Este diretório contém todos os scripts responsáveis por automatizar a infraestrutura GitHub, provisionamento de environments, criação de branches, configuração de permissões e bootstrap completo do projeto.
 
-A ideia é transformar toda a configuração operacional em infraestrutura reutilizável e automatizada.
+A proposta é transformar toda a configuração operacional em uma arquitetura reutilizável baseada em:
 
----
-
-# Objetivos
-
-Os scripts deste projeto possuem como foco:
-
-- reduzir configuração manual
-- padronizar ambientes
-- automatizar GitHub Actions
-- automatizar Environments e Secrets
-- provisionar VPS
-- reutilizar arquitetura em múltiplos projetos
-- facilitar onboarding
-- criar uma base Full Stack escalável
+- Infrastructure as Code
+- GitHub Environment Provisioning
+- DevOps Automation
+- CI/CD Bootstrap
+- Repositórios reutilizáveis
 
 ---
 
 # Estrutura
 
 ```txt
-scripts/
-├── generate-github-environments.sh
-├── github-secure-repos.sh
-├── bootstrap-vps.sh
-├── deploy-homolog.sh
-└── deploy-production.sh
+.github/scripts/
+├── init-git-project.sh
+├── generate-github-repository.sh
+├── generate-github-branchs.sh
+├── generate-github-branchs-permissions.sh
+└── generate-github-environments.sh
 ```
 
 ---
@@ -38,7 +29,7 @@ scripts/
 
 ## GitHub CLI
 
-Instalação Ubuntu/WSL:
+Ubuntu / WSL:
 
 ```bash
 sudo apt update
@@ -63,56 +54,31 @@ Login with browser
 
 ---
 
-# Scripts
+# Arquivo .env.git
 
----
-
-# generate-github-environments.sh
-
-Responsável por criar automaticamente os environments do GitHub e sincronizar os secrets a partir do arquivo `.env.git`.
-
----
-
-## O que ele faz
-
-Cria automaticamente:
-
-```txt
-Environment:
-- homolog
-- production
-```
-
-E cria/atualiza os secrets:
-
-```txt
-SECRETS_HOMOLOG
-SECRETS_PRODUCTION
-```
-
-Cada secret contém todas as variáveis do ambiente correspondente.
-
----
-
-## Arquitetura
+Todos os scripts utilizam o arquivo:
 
 ```txt
 .env.git
-    ↓
-generate-github-environments.sh
-    ↓
-GitHub Environments
-    ↓
-GitHub Secrets
-    ↓
-GitHub Actions
 ```
+
+como fonte central de configuração.
 
 ---
 
-## Estrutura esperada do .env.git
+# Estrutura esperada
 
 ```env
+# =============================================================================
+# GITHUB INFO
+# =============================================================================
+
+INFO_GIT={
+    OWNER="murilodark"
+    REPOSITORY="git-public-front"
+    MESSAGE="Deploying to production environment - $(date)"
+}
+
 # =============================================================================
 # ENVIRONMENT PRODUCTION
 # =============================================================================
@@ -158,150 +124,234 @@ SECRETS_HOMOLOG={
 
 ---
 
-## Configuração do repositório
+# init-git-project.sh
 
-Edite dentro do script:
-
-```bash
-OWNER="murilodark"
-REPO="git-public-front"
-```
+Script principal responsável por executar automaticamente todos os scripts na ordem correta.
 
 ---
 
-## Executar
-
-```bash
-chmod +x scripts/generate-github-environments.sh
-```
-
-```bash
-./scripts/generate-github-environments.sh
-```
-
----
-
-## Resultado no GitHub
-
-### Environment: homolog
+## Fluxo executado
 
 ```txt
-Secrets:
-- SECRETS_HOMOLOG
+1. Cria o repositório GitHub
+2. Cria/sincroniza branches
+3. Configura permissões das branches
+4. Cria environments
+5. Cria/atualiza secrets
 ```
 
 ---
 
-### Environment: production
+## Execução
+
+```bash
+./.github/scripts/init-git-project.sh
+```
+
+---
+
+# generate-github-repository.sh
+
+Responsável por:
+
+- criar o repositório GitHub caso não exista
+- configurar remote origin
+- criar commit inicial
+- enviar código inicial
+- sincronizar branch atual
+
+---
+
+## O que ele faz
+
+### Cria automaticamente:
 
 ```txt
-Secrets:
-- SECRETS_PRODUCTION
+OWNER/REPOSITORY
 ```
 
 ---
 
-# github-secure-repos.sh
+## Configura:
 
-Responsável por automatizar a configuração de segurança dos repositórios GitHub.
+```txt
+remote origin
+```
+
+---
+
+## Realiza:
+
+```txt
+git add
+git commit
+git push
+```
+
+---
+
+## Execução
+
+```bash
+./.github/scripts/generate-github-repository.sh
+```
+
+---
+
+# generate-github-branchs.sh
+
+Responsável por criar e sincronizar automaticamente as branches definidas no `.env.git`.
+
+---
+
+## Branches utilizadas
+
+```txt
+SECRETS_PRODUCTION -> BRANCH
+SECRETS_HOMOLOG -> BRANCH
+```
+
+---
+
+## Exemplo
+
+```txt
+main
+develop
+```
+
+---
+
+## O que ele faz
+
+- cria branches locais
+- sincroniza branches remotas
+- cria branch remota caso não exista
+- configura upstream automaticamente
+
+---
+
+## Execução
+
+```bash
+./.github/scripts/generate-github-branchs.sh
+```
+
+---
+
+# generate-github-branchs-permissions.sh
+
+Responsável por configurar automaticamente permissões e proteções das branches.
 
 ---
 
 ## O que ele configura
 
-- repository public
+### Repositório
+
+- public
 - issues enabled
 - wiki disabled
 - projects disabled
-- branch protection
+
+---
+
+### Branches
+
 - block force push
 - block delete branch
+- proteção automática
 
 ---
 
-## Execução
-
-```bash
-./scripts/github-secure-repos.sh
-```
-
----
-
-# bootstrap-vps.sh
-
-Responsável por preparar uma VPS Ubuntu limpa para deploy.
-
----
-
-## Instala
-
-- Docker
-- Docker Compose
-- Git
-- Curl
-- UFW
-
----
-
-## Configura
-
-- portas 80/443
-- OpenSSH
-- Docker Engine
-
----
-
-## Execução
-
-```bash
-sudo ./scripts/bootstrap-vps.sh
-```
-
----
-
-# deploy-homolog.sh
-
-Responsável por executar deploy manual do ambiente homolog.
-
----
-
-## Execução
-
-```bash
-./scripts/deploy-homolog.sh
-```
-
----
-
-# deploy-production.sh
-
-Responsável por executar deploy manual do ambiente production.
-
----
-
-## Execução
-
-```bash
-./scripts/deploy-production.sh
-```
-
----
-
-# Filosofia da Arquitetura
-
-Este projeto utiliza o conceito de:
+## Branches protegidas
 
 ```txt
-Infrastructure as Code
+SECRETS_PRODUCTION -> BRANCH
+SECRETS_HOMOLOG -> BRANCH
 ```
 
-e:
+---
+
+## Execução
+
+```bash
+./.github/scripts/generate-github-branchs-permissions.sh
+```
+
+---
+
+# generate-github-environments.sh
+
+Responsável por criar automaticamente os environments GitHub e sincronizar os secrets.
+
+---
+
+## Environments criados
 
 ```txt
-GitHub Environment Provisioning
+production
+homolog
 ```
 
-Toda a configuração operacional é transformada em arquivos versionáveis e reutilizáveis.
+---
+
+## Secrets criados
+
+### Environment: production
+
+```txt
+SECRETS_PRODUCTION
+```
+
+---
+
+### Environment: homolog
+
+```txt
+SECRETS_HOMOLOG
+```
+
+---
+
+## O que ele faz
+
+- cria environments
+- cria secrets
+- atualiza secrets automaticamente
+- sincroniza configurações do `.env.git`
+
+---
+
+## Execução
+
+```bash
+./.github/scripts/generate-github-environments.sh
+```
+
+---
+
+# Fluxo Completo da Arquitetura
+
+```txt
+.env.git
+    ↓
+Scripts GitHub
+    ↓
+GitHub Repository
+    ↓
+GitHub Branches
+    ↓
+GitHub Permissions
+    ↓
+GitHub Environments
+    ↓
+GitHub Secrets
+    ↓
+GitHub Actions
+    ↓
+Deploy VPS
+```
 
 ---
 
@@ -309,18 +359,36 @@ Toda a configuração operacional é transformada em arquivos versionáveis e re
 
 Criar uma arquitetura Full Stack reutilizável contendo:
 
-- React / Vue / Vite
+- React
+- Vue
+- Vite
 - Docker
 - Traefik
 - SSL automático
 - múltiplos domínios
+- GitHub Actions
 - CI/CD
 - homolog
 - production
-- GitHub Actions
 - VPS automatizada
-- deploy automatizado
-- environments dinâmicos
-- configuração centralizada
+- bootstrap automático
+- provisionamento automático
+- environments automatizados
 
 ---
+
+# Filosofia do Projeto
+
+Todo o setup operacional é tratado como código.
+
+Nada deve depender de configuração manual.
+
+O objetivo é permitir:
+
+```txt
+1 arquivo .env.git
++
+1 comando
+=
+Projeto completamente provisionado
+```
